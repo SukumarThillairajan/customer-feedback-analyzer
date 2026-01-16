@@ -6,6 +6,7 @@ A feedback analysis system for jewelry e-commerce retailers that collects custom
 
 - [Overview](#overview)
 - [Key Features](#key-features)
+- [Screenshots](#screenshots)
 - [System Architecture](#system-architecture)
 - [Technology Stack](#technology-stack)
 - [Project Structure](#project-structure)
@@ -15,7 +16,6 @@ A feedback analysis system for jewelry e-commerce retailers that collects custom
 - [Configuration](#configuration)
 - [Testing](#testing)
 - [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
 - [License](#license)
 
 ## Overview
@@ -40,6 +40,17 @@ Feedback Hub is a full-stack application designed to streamline customer feedbac
 - **Auto-refresh**: Frontend dashboard auto-updates every 30 seconds with manual refresh capability
 - **Responsive Design**: Mobile-first Tailwind CSS implementation
 - **Error Handling**: User-friendly error messages with backend connection diagnostics
+
+## Screenshots
+
+### Feedback Form
+![Feedback Form](screenshots/feedback-form.png)
+### Feedback Dashboard
+![Feedback Dashboard](screenshots/feedback-dashboard.png)
+### Charts
+![Charts](screenshots/charts.png)
+### Insights Generator
+![Insight Generator](screenshots/insights-generator.png)
 
 ## System Architecture
 
