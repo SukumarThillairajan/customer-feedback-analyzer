@@ -1,13 +1,14 @@
-"""
-URL configuration for feedback app.
-"""
+# backend/feedback/urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import FeedbackViewSet
 
 router = DefaultRouter()
-router.register(r'feedback', FeedbackViewSet, basename='feedback')
+# register the viewset on the empty prefix so the router maps /feedback/...
+router.register('', FeedbackViewSet, basename='feedback')
 
 urlpatterns = [
-    path('api/', include(router.urls)),
+    # router maps:
+    #   GET  / -> FeedbackViewSet.list  (so project /api/feedback/ -> router)
+    path('', include(router.urls)),
 ]

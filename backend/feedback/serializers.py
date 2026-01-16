@@ -5,7 +5,7 @@ from rest_framework import serializers
 from .models import Feedback
 
 # Valid product IDs
-VALID_PRODUCTS = ['Rings', 'Earrings', 'Necklaces', 'Bracelets', 'Pendants']
+VALID_PRODUCTS = ['Rings', 'Earrings', 'Necklaces', 'Bracelets', 'Pendants', 'Other']
 
 
 class FeedbackSerializer(serializers.ModelSerializer):
@@ -16,7 +16,7 @@ class FeedbackSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Feedback
-        fields = ['id', 'product_id', 'rating', 'review_text', 'created_at', 
+        fields = ['id', 'product_id', 'product_name', 'rating', 'review_text', 'created_at', 
                  'sentiment', 'themes', 'tokens', 'language', 'meta']
         read_only_fields = ['id', 'created_at', 'sentiment', 'themes', 'tokens']
     
@@ -24,7 +24,6 @@ class FeedbackSerializer(serializers.ModelSerializer):
         """Return nested sentiment object."""
         return {
             'label': obj.sentiment_label,
-            'score': obj.sentiment_score,
             'confidence': obj.sentiment_confidence
         }
     
@@ -56,6 +55,7 @@ class FeedbackCreateSerializer(serializers.Serializer):
     Serializer for creating feedback (only requires product_id, rating, review_text).
     """
     product_id = serializers.CharField()
+    product_name = serializers.CharField(required=False, allow_blank=True)
     rating = serializers.IntegerField()
     review_text = serializers.CharField()
     

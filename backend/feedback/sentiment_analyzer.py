@@ -10,27 +10,37 @@ logger = logging.getLogger(__name__)
 STRONG_POSITIVE = {
     'love': 2, 'excellent': 2, 'perfect': 2, 'amazing': 2, 
     'stunning': 2, 'gorgeous': 2, 'outstanding': 2, 'brilliant': 2,
-    'fantastic': 2, 'wonderful': 2, 'marvelous': 2, 'superb': 2
+    'fantastic': 2, 'wonderful': 2, 'marvelous': 2, 'superb': 2,
+    'incredible': 2, 'exceptional': 2, 'phenomenal': 2, 'flawless': 2,
+    'spectacular': 2, 'impeccable': 2, 'unbelievable': 2, 'exceptional': 2,
+    'trendy': 2, 'stylish': 2, 'fashionable': 2, 'premium': 2,
+    'attractive': 2, 'appealing': 2, 'elegant': 2, 'beautiful': 2
 }
 
 MODERATE_POSITIVE = {
-    'shiny': 1, 'elegant': 1, 'comfortable': 1, 'premium': 1,
-    'beautiful': 1, 'great': 1, 'good': 1, 'nice': 1, 'fine': 1,
-    'pretty': 1, 'lovely': 1, 'satisfied': 1, 'pleased': 1,
-    'happy': 1, 'satisfactory': 1, 'decent': 1
+    'shiny': 1, 'elegant': 1, 'comfortable': 1, 'great': 1, 
+    'good': 1, 'nice': 1, 'fine': 1, 'pretty': 1, 
+    'lovely': 1, 'satisfied': 1, 'pleased': 1, 'happy': 1, 
+    'satisfactory': 1, 'decent': 1, 
 }
 
 MODERATE_NEGATIVE = {
-    'tarnish': -1, 'dull': -1, 'uncomfortable': -1, 'heavy': -1,
     'cheap': -1, 'poor': -1, 'disappointed': -1, 'fragile': -1,
     'ugly': -1, 'bad': -1, 'unhappy': -1, 'unsatisfied': -1,
-    'mediocre': -1, 'average': -1, 'okay': -1, 'ok': -1
+    'mediocre': -1, 'average': -1, 'okay': -1, 'ok': -1,
+    'flimsy': -1, 'weak': -1, 'crack': -1, 'scratch': -1, 
+    'smudge': -1, 'stain': -1
 }
 
 STRONG_NEGATIVE = {
+    'tarnish': -1, 'dull': -1, 'uncomfortable': -1, 'heavy': -1,
     'broke': -2, 'broken': -2, 'terrible': -2, 'awful': -2,
     'worst': -2, 'horrible': -2, 'disgusting': -2, 'hate': -2,
-    'useless': -2, 'waste': -2, 'defective': -2, 'damaged': -2
+    'useless': -2, 'waste': -2, 'defective': -2, 'damaged': -2,
+    'flawed': -2, 'unacceptable': -2, 'lousy': -2, 'abysmal': -2,
+    'dreadful': -2, 'atrocious': -2, 'pathetic': -2, 'shoddy': -2,
+    'outdated': -2, 'unfashionable': -2, 'unstylish': -2, 'untrendy': -2,
+    'unattractive': -2, 'unappealing': -2
 }
 
 # Combine all dictionaries for lookup
@@ -78,7 +88,6 @@ def analyze_sentiment(review_text, debug=False):
     if not review_text or not review_text.strip():
         result = {
             'label': 'Neutral',
-            'score': 0.0,
             'confidence': 0.0
         }
         if debug:
@@ -92,7 +101,6 @@ def analyze_sentiment(review_text, debug=False):
     if not tokens:
         result = {
             'label': 'Neutral',
-            'score': 0.0,
             'confidence': 0.0
         }
         if debug:
@@ -145,7 +153,7 @@ def analyze_sentiment(review_text, debug=False):
     # Determine label based on thresholds
     if score > 0.2:
         label = 'Positive'
-    elif score < -0.2:
+    elif score < -0.1:
         label = 'Negative'
     else:
         label = 'Neutral'
@@ -158,7 +166,6 @@ def analyze_sentiment(review_text, debug=False):
     
     result = {
         'label': label,
-        'score': round(score, 3),
         'confidence': round(confidence, 3)
     }
     
@@ -167,7 +174,7 @@ def analyze_sentiment(review_text, debug=False):
         result['matched_words'] = matched_words
         result['negations'] = [{'position': pos, 'word': tokens[pos]} for pos in negation_positions]
         result['total_weight'] = total_weight
-        result['normalized_score'] = score
+        logger.debug("analyze_sentiment debug: tokens=%s matched=%s total_weight=%s", tokens, matched_words, total_weight)
     
     return result
 
@@ -188,26 +195,66 @@ def detect_themes(review_text):
         'Comfort': {
             'keywords': ['light', 'heavy', 'fit', 'fits', 'fitting', 'wearable', 
                         'comfortable', 'uncomfortable', 'weight', 'weighs', 'weighed', 
-                        'feels', 'feeling', 'wear', 'wearing'],
+                        'feels', 'feeling', 'wear', 'wearing', 'worn', 'ease', 'easy', 
+                        'difficult', 'difficulties', 'tight', 'loose', 'snug', 'baggy', 
+                        'tight', 'looseness', 'snugness', 'bagginess', 'comfort', 'comforting',
+                        'uncomfortably'],
             'phrases': ['easy to wear', 'hard to wear', 'comfortable to wear', 
                        'uncomfortable to wear', 'feels good', 'feels bad', 
-                       'too heavy', 'too light']
+                       'too heavy', 'too light', 'fits well', 'does not fit',
+                       'fits poorly', 'fits tightly', 'fits loosely', 'fits snugly',
+                       'fits baggily', 'very comfortable', 'very uncomfortable',
+                       'extremely comfortable', 'extremely uncomfortable', 
+                       'somewhat comfortable', 'somewhat uncomfortable']
         },
         'Durability': {
             'keywords': ['broke', 'broken', 'break', 'breaks', 'strong', 'strength', 
                         'quality', 'fragile', 'durable', 'durability', 'lasts', 
                         'lasting', 'sturdy', 'sturdiness', 'weak', 'weakness', 
-                        'crack', 'cracked', 'damage', 'damaged'],
+                        'crack', 'cracked', 'damage', 'damaged', 'wear', 'wears', 
+                        'worn', 'tear', 'tears', 'torn', 'fall apart', 'falls apart', 
+                        'long lasting', 'longer lasting', 'lasting long', 'lasting longer',
+                        'high quality', 'poor quality', 'good quality', 'bad quality', 
+                        'well made', 'poorly made', 'solid', 'solidity', 'robust', 'robustness',
+                        'resilient', 'resilience', 'tough', 'toughness'],
             'phrases': ['lasts long', 'broke after', 'high quality', 'poor quality', 
-                       'good quality', 'bad quality', 'falls apart', 'well made']
+                       'good quality', 'bad quality', 'falls apart', 'well made', 'poorly made',
+                       'very durable', 'extremely durable', 'somewhat durable', 'not durable',
+                       'not durable at all', 'very fragile', 'extremely fragile', 'somewhat fragile',
+                       'not fragile', 'not fragile at all', 'holds up well', 'does not hold up',
+                       'holds up poorly', 'long lasting', 'longer lasting', 'lasting long',
+                       'lasting longer', 'solid build', 'solidly built', 'robust build',
+                       'robustly built', 'resilient material', 'tough material', 'tough build', 
+                       'toughly built', 'weak build', 'weakly built', 'easily breaks', 'easily broken',
+                       'hard to break', 'difficult to break', 'strong build', 'strongly built', 
+                       'highly durable', 'poorly durable']
         },
         'Appearance': {
             'keywords': ['shiny', 'shine', 'dull', 'design', 'designed', 'polish', 
                         'polished', 'beautiful', 'elegant', 'elegance', 'ugly', 
                         'looks', 'look', 'appearance', 'finish', 'finished', 
-                        'color', 'colour', 'sparkle', 'sparkling'],
+                        'color', 'colour', 'sparkle', 'sparkling', 'glossy', 'gloss',
+                        'matte', 'sleek', 'sleekness', 'attractive', 'attractiveness',
+                        'appealing', 'appeal', 'stylish', 'style', 'fashionable', 
+                        'fashionableness', 'trendy', 'trendiness', 'unattractive', 'unappealing',
+                        'unfashionable', 'unstylish', 'untrendy', 'outdated', 'outdatedness',
+                        'old fashioned', 'old-fashioned', 'not stylish', 'not fashionable',
+                        'not trendy', 'not attractive', 'not appealing', 'not good looking',
+                        'not nice looking', 'not beautiful', 'not elegant', 'not attractive',
+                        'not appealing', 'not good looking', 'not nice looking', 'not beautiful',
+                        'not elegant', 'not stylish', 'not fashionable', 'not trendy'],
             'phrases': ['looks good', 'looks bad', 'beautiful design', 'nice finish', 
-                       'poor finish', 'elegant design', 'ugly design']
+                       'poor finish', 'elegant design', 'ugly design', 'dull finish',
+                       'shiny finish', 'glossy finish', 'matte finish', 'sleek design',
+                       'very stylish', 'extremely stylish', 'somewhat stylish', 'not stylish',
+                       'very fashionable', 'extremely fashionable', 'somewhat fashionable', 'not fashionable',
+                       'very trendy', 'extremely trendy', 'somewhat trendy', 'not trendy',
+                       'very attractive', 'extremely attractive', 'somewhat attractive', 'not attractive',
+                       'very appealing', 'extremely appealing', 'somewhat appealing', 'not appealing',
+                       'very good looking', 'extremely good looking', 'somewhat good looking', 'not good looking',
+                       'very nice looking', 'extremely nice looking', 'somewhat nice looking', 'not nice looking',
+                       'very beautiful', 'extremely beautiful', 'somewhat beautiful', 'not beautiful',
+                       'very elegant', 'extremely elegant', 'somewhat elegant', 'not elegant']
         }
     }
     

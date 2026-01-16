@@ -5,6 +5,9 @@ import uuid
 from django.db import models
 from django.utils import timezone
 from .sentiment_analyzer import analyze_sentiment, detect_themes
+import logging
+
+logger = logging.getLogger('feedback')
 
 
 class Feedback(models.Model):
@@ -13,13 +16,13 @@ class Feedback(models.Model):
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     product_id = models.CharField(max_length=100)
+    product_name = models.CharField(max_length=255, blank=True, null=True)
     rating = models.IntegerField()  # 1-5
     review_text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     
     # Sentiment analysis fields
     sentiment_label = models.CharField(max_length=20, default='Neutral')  # Positive, Negative, Neutral
-    sentiment_score = models.FloatField(default=0.0)  # -1.0 to +1.0
     sentiment_confidence = models.FloatField(default=0.0)  # 0.0 to 1.0
     
     # Theme detection
@@ -48,7 +51,6 @@ class Feedback(models.Model):
         # Analyze sentiment
         sentiment_result = analyze_sentiment(self.review_text, debug=False)
         self.sentiment_label = sentiment_result['label']
-        self.sentiment_score = sentiment_result['score']
         self.sentiment_confidence = sentiment_result['confidence']
         
         # Detect themes
@@ -68,12 +70,12 @@ class Feedback(models.Model):
         return {
             '_id': str(self.id),
             'product_id': self.product_id,
+            'product_name': self.product_name,
             'rating': self.rating,
             'review_text': self.review_text,
             'created_at': self.created_at.isoformat() + 'Z',
             'sentiment': {
                 'label': self.sentiment_label,
-                'score': self.sentiment_score,
                 'confidence': self.sentiment_confidence
             },
             'themes': self.themes,
